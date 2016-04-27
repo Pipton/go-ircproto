@@ -28,8 +28,9 @@ soon as possible.
 ### It Doesn't Exist
 
 In that case, please create an issue ASAP! Give it a short title that describes
-the problem, and fill in the form. If you feel we are asking for something that
-isn't relevant, feel free to remove it.
+the problem (e.g. "Crashes when universe state set to 43"), and fill in the
+form. If you feel we are asking for something that isn't relevant, feel free to
+remove it.
 
 In the end, you should have provided information explaining what the problem is,
 the current version you are using, what platform you are on, and how to
@@ -45,8 +46,9 @@ If someone has, simply use [GitHub Reactions](https://github.com/blog/2119-add-r
 to +1 it. If you'd like to add anything, feel free to leave a comment.
 
 If nobody has suggested something similar to your idea, go create a new issue.
-Give it a short title that describes you idea, and replace the body of the
-issue with a detailed explanation of what you'd like.
+Give it a short title that describes you idea (e.g. "Add function to obtain
+cake"), and replace the body of the issue with a detailed explanation of what
+you'd like.
 
 ## Submitting Changes
 
