@@ -1,5 +1,7 @@
 # ircproto
 
+[![Build Status](https://travis-ci.org/AelitaStyles/go-ircproto.svg?branch=master)](https://travis-ci.org/AelitaStyles/go-ircproto)
+
 Package ircproto provides a parser, generator and state tracker for the IRC
 protocol. How you get the IRC command and what you do with the information
 ircproto gives you is irrelevant; just drop a string into the parser, and
