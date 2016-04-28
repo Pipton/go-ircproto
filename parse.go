@@ -81,7 +81,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	argCount := 0
 	for i, v := range cmd[cmdTypeEnd+1:] {
 		if v == ':' {
-			argEnd = cmdlen-2
+			argEnd = cmdlen - 2
 			arguments = append(arguments, cmd[argStart+1:argEnd])
 			break
 		} else if v == '\r' {
@@ -89,7 +89,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 			arguments = append(arguments, cmd[argStart:argEnd])
 			break
 		} else if argCount == 14 {
-			argEnd = cmdlen-2
+			argEnd = cmdlen - 2
 			arguments = append(arguments, cmd[argStart:argEnd])
 			break
 		} else if v == ' ' {
