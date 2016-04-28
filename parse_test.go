@@ -7,7 +7,10 @@
 
 package ircproto
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 // ----------------------------------------------------------------------------
 // PARSE RAW TESTS ------------------------------------------------------------
@@ -120,6 +123,49 @@ func TestParseRawValid3(t *testing.T) {
 			"Boo!\", it was \"%s\".", parsedcmd.RawArguments[1])
 	} else if parsedcmd.Data != nil {
 		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
+	}
+}
+func TestParseRawValid4(t *testing.T) {
+	unparsedcmd := ":server.test 005 TestUser CAP1 CAP2 CAP3 CAP4 CAP5 CAP6 " +
+		"CAP7 CAP8 CAP9 CAP10 CAP11 CAP12 CAP13 are supported by this " +
+		"server\r\n"
+	var parsedcmd IrcCommand
+	var err error
+
+	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned structure is: %+v", parsedcmd)
+	if err != nil {
+		t.Fatalf("ParseRaw failed with error '%s'", err)
+	}
+
+	if parsedcmd.Source.Type != "Server" || parsedcmd.Source.Host !=
+		"server.test" {
+		t.Fatalf("Source has type \"%s\" and host \"%s\", expected type "+
+			"\"Server\" and host \"server.test\".", parsedcmd.Source.Type,
+			parsedcmd.Source.Host)
+	} else if parsedcmd.RawType != "005" {
+		t.Fatalf("Expected RawType to be \"005\", got \"%s\".",
+			parsedcmd.RawType)
+	} else if parsedcmd.Type != "" {
+		t.Fatalf("Expected Type to be unset, it was set to \"%s\"",
+			parsedcmd.Type)
+	} else if len := len(parsedcmd.RawArguments); len != 15 {
+		t.Fatalf("Expected RawArguments array length to be 15, it was %d.", len)
+	} else if parsedcmd.RawArguments[0] != "TestUser" {
+		t.Fatalf("Expected RawArguments[0] to be set to \"TestUser\", it was "+
+			"\"%s\".", parsedcmd.RawArguments[0])
+	} else if parsedcmd.RawArguments[14] != "are supported by this server" {
+		t.Fatalf("Expected RawArguments[14] to be set to \"are supported by "+
+			"this server\", it was \"%s\".", parsedcmd.RawArguments[14])
+	} else if parsedcmd.Data != nil {
+		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
+	}
+
+	for i := 1; i < 14; i++ {
+		if parsedcmd.RawArguments[i] != fmt.Sprintf("CAP%d", i) {
+			t.Fatalf("Expected RawArguments[%d] to be \"CAP%d\", but it was "+
+				"\"%s\".", i, i, parsedcmd.RawArguments[i])
+		}
 	}
 }
 
