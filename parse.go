@@ -57,18 +57,18 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 		if cmd[prefixEnd+1] > 47 && cmd[prefixEnd+1] < 58 &&
 			cmd[prefixEnd+2] > 47 && cmd[prefixEnd+2] < 58 &&
 			cmd[prefixEnd+3] == ' ' {
-			cmdTypeEnd = prefixEnd+3
-		}else{
-			return IrcCommand{}, fmt.Errorf("Command type is not a valid "+
+			cmdTypeEnd = prefixEnd + 3
+		} else {
+			return IrcCommand{}, fmt.Errorf("Command type is not a valid " +
 				"numeric.")
 		}
 	} else {
-		for i,v := range cmd[prefixEnd:] {
+		for i, v := range cmd[prefixEnd:] {
 			if v == ' ' {
 				cmdTypeEnd = i
 				break
 			} else if (v < 65 || v > 122) && !(v > 90 && v < 97) {
-				return IrcCommand{}, fmt.Errorf("Command type contains invalid"+
+				return IrcCommand{}, fmt.Errorf("Command type contains invalid" +
 					"characters.")
 			}
 		}
@@ -76,10 +76,10 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	parsedcmd.RawType = cmd[prefixEnd:cmdTypeEnd]
 
 	// Fetch arguments
-	argStart := cmdTypeEnd+1
+	argStart := cmdTypeEnd + 1
 	argEnd := 0
 	argCount := 0
-	for i,v := range cmd[cmdTypeEnd+1:] {
+	for i, v := range cmd[cmdTypeEnd+1:] {
 		if argCount == 14 {
 			break
 		} else if v == ':' {
@@ -144,9 +144,9 @@ func ParseUserMask(mask string) (IrcUserMask, error) {
 	// Check if hostsep is set
 	if hostsep != 0 {
 		parsedmask.Type = "User"
-		parsedmask.Host = mask[hostsep+1:len(mask)]
+		parsedmask.Host = mask[hostsep+1 : len(mask)]
 		if usersep != 0 {
-			parsedmask.Username = mask[usersep+1:hostsep]
+			parsedmask.Username = mask[usersep+1 : hostsep]
 			parsedmask.Nick = mask[:usersep]
 		} else {
 			parsedmask.Nick = mask[:hostsep]
