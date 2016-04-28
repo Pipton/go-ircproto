@@ -507,3 +507,25 @@ func TestParseUserMaskInvalid4(t *testing.T) {
 			"permitted.\", got \"%s\"", err)
 	}
 }
+func TestParseUserMaskInvalid5(t *testing.T) {
+	unparsedmask := "test!x boo@client.test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned error is: %+v", err)
+	if err == nil {
+		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	}
+
+	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
+		"" || parsedmask.Host != "" {
+		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
+			"error.")
+	}
+
+	if err.Error() != "User mask contains reserved characters." {
+		t.Fatalf("Expected error to be \"User mask contains reserved "+
+			"characters.\", got \"%s\"", err)
+	}
+}
