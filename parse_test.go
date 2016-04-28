@@ -419,3 +419,25 @@ func TestParseUserMaskValidAmbigiousMask1(t *testing.T) {
 			parsedmask.Host)
 	}
 }
+func TestParseUserMaskInvalid1(t *testing.T) {
+	unparsedmask := "test!x!x@client.test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned error is: %+v", err)
+	if err == nil {
+		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	}
+
+	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
+		"" || parsedmask.Host != "" {
+		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
+			"error.")
+	}
+
+	if err.Error() != "User mask has multiple nick/user seperators." {
+		t.Fatalf("Expected error to be \"User mask has multiple nick/user "+
+			"seperators, got \"%s\"", err)
+	}
+}
