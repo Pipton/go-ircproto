@@ -570,3 +570,40 @@ func TestParseUserMaskInvalid5(t *testing.T) {
 			"characters.\", got \"%s\"", err)
 	}
 }
+
+// ----------------------------------------------------------------------------
+// PARSE USER MASK BENCHMARKS -------------------------------------------------
+// ----------------------------------------------------------------------------
+
+func BenchmarkParseUserMaskUserLong(b *testing.B){
+	for i := 0; i < b.N; i++ {
+		_, err := ParseUserMask("TestUser!test@user.client.test")
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+func BenchmarkParseUserMaskUserShort(b *testing.B){
+	for i := 0; i < b.N; i++ {
+		_, err := ParseUserMask("TestUser@user.client.test")
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+func BenchmarkParseUserMaskServer(b *testing.B){
+	for i := 0; i < b.N; i++ {
+		_, err := ParseUserMask("server.test")
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+func BenchmarkParseUserMaskAmbigious(b *testing.B){
+	for i := 0; i < b.N; i++ {
+		_, err := ParseUserMask("test")
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
