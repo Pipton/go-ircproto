@@ -26,6 +26,86 @@ type IrcUserMask struct {
 	Host     string // Host of the user or server (if given)
 }
 
+// ParseRaw will check the IRC command is valid, split it up and return the
+// contents as an IrcCommand structure, without doing any additional parsing
+// or state tracking.
+func ParseRaw(cmd string) (IrcCommand, error) {
+	cmdlen := len(cmd)
+	prefixEnd := 1
+	cmdTypeEnd := 0
+	var arguments []string
+	var parsedcmd IrcCommand
+
+	// Check if we have a prefix
+	if cmd[:1] == ":" {
+		for cmd[prefixEnd-1:prefixEnd] != " " && prefixEnd < cmdlen {
+			prefixEnd++
+		}
+
+		parsedprefix, err := ParseUserMask(cmd[1 : prefixEnd-1])
+		if err != nil {
+			return IrcCommand{}, err
+		}
+		parsedcmd.Source = parsedprefix
+	} else {
+		parsedcmd.Source = IrcUserMask{Type: "None"}
+		prefixEnd = 0
+	}
+
+	// Parse the command type
+	if cmd[prefixEnd] > 47 && cmd[prefixEnd] < 58 {
+		if cmd[prefixEnd+1] > 47 && cmd[prefixEnd+1] < 58 &&
+			cmd[prefixEnd+2] > 47 && cmd[prefixEnd+2] < 58 &&
+			cmd[prefixEnd+3] == ' ' {
+			cmdTypeEnd = prefixEnd+3
+		}else{
+			return IrcCommand{}, fmt.Errorf("Command type is not a valid "+
+				"numeric.")
+		}
+	} else {
+		for i,v := range cmd[prefixEnd:] {
+			if v == ' ' {
+				cmdTypeEnd = i
+				break
+			} else if (v < 65 || v > 122) && !(v > 90 && v < 97) {
+				return IrcCommand{}, fmt.Errorf("Command type contains invalid"+
+					"characters.")
+			}
+		}
+	}
+	parsedcmd.RawType = cmd[prefixEnd:cmdTypeEnd]
+
+	// Fetch arguments
+	argStart := cmdTypeEnd+1
+	argEnd := 0
+	argCount := 0
+	for i,v := range cmd[cmdTypeEnd+1:] {
+		if argCount == 14 {
+			break
+		} else if v == ':' {
+			argEnd = cmdlen
+			arguments = append(arguments, cmd[argStart+2:cmdlen-2])
+			break
+		} else if v == ' ' {
+			argEnd = i + cmdTypeEnd + 1
+			arguments = append(arguments, cmd[argStart:argEnd])
+			argCount++
+			argStart = argEnd
+		} else if v == '\r' {
+			argEnd = i + cmdTypeEnd + 1
+			arguments = append(arguments, cmd[argStart:argEnd])
+			break
+		}
+	}
+	parsedcmd.RawArguments = arguments
+
+	if cmd[cmdlen-2:cmdlen] != "\r\n" {
+		return IrcCommand{}, fmt.Errorf("Command does not end with CRLF.")
+	}
+
+	return parsedcmd, nil
+}
+
 // ParseUserMask will parse a usermask string and return the appropriate
 // IrcUserMask structure. The Type field will be set to either "None",
 // "User", "Server" or "Unknown".
