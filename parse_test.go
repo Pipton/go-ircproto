@@ -168,6 +168,37 @@ func TestParseRawValid4(t *testing.T) {
 		}
 	}
 }
+func TestParseRawValid5(t *testing.T) {
+	unparsedcmd := "PING :BOOP\r\n"
+	var parsedcmd IrcCommand
+	var err error
+
+	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned structure is: %+v", parsedcmd)
+	if err != nil {
+		t.Fatalf("ParseRaw failed with error '%s'", err)
+	}
+
+	if parsedcmd.Source.Type != "None" {
+		t.Fatalf("Source type expected to be \"None\", got \"%s\".",
+			parsedcmd.Source.Type)
+	} else if parsedcmd.RawType != "PING" {
+		t.Fatalf("Raw type texpected to be \"PING\", got \"%s\".",
+			parsedcmd.RawType)
+	} else if parsedcmd.Type != "" {
+		t.Fatalf("Parsed type not meant to be set here, it was set to \"%s\".",
+			parsedcmd.Type)
+	} else if parsedcmd.Data != nil {
+		t.Fatalf("Parsed data not meant to be set here, it was set to \"%+v\".",
+			parsedcmd.Data)
+	} else if len := len(parsedcmd.RawArguments); len != 1 {
+		t.Fatalf("Raw arguments array expected to be of length 1, length is "+
+			"%d.", len)
+	} else if parsedcmd.RawArguments[0] != "BOOP" {
+		t.Fatalf("Expected RawArguments[0] to be set to \"BOOP\", it is "+
+			"\"%s\".", parsedcmd.RawArguments[0])
+	}
+}
 
 // ----------------------------------------------------------------------------
 // PARSE USER MASK TESTS ------------------------------------------------------
