@@ -84,6 +84,44 @@ func TestParseRawValid2(t *testing.T) {
 		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
 	}
 }
+func TestParseRawValid3(t *testing.T) {
+	unparsedcmd := ":OtherUser!foo@second.client.test PRIVMSG TestUser :This " +
+		"is a message. Boo!\r\n"
+	var parsedcmd IrcCommand
+	var err error
+
+	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned structure is: %+v", parsedcmd)
+	if err != nil {
+		t.Fatalf("ParseRaw failed with error '%s'", err)
+	}
+
+	if parsedcmd.Source.Type != "User" || parsedcmd.Source.Nick !=
+		"OtherUser" || parsedcmd.Source.Username != "foo" ||
+		parsedcmd.Source.Host != "second.client.test" {
+		t.Fatalf("Source has type \"%s\", nick \"%s\", username \"%s\" and "+
+			"host \"%s\", expected type \"User\", nick \"OtherUser\", "+
+			"username \"foo\" and host \"second.client.test\".",
+			parsedcmd.Source.Type, parsedcmd.Source.Nick,
+			parsedcmd.Source.Username, parsedcmd.Source.Host)
+	} else if parsedcmd.RawType != "PRIVMSG" {
+		t.Fatalf("Expected RawType to be \"PRIVMSG\", got \"%s\".",
+			parsedcmd.RawType)
+	} else if parsedcmd.Type != "" {
+		t.Fatalf("Expected Type to be unset, it was set to \"%s\"",
+			parsedcmd.Type)
+	} else if len := len(parsedcmd.RawArguments); len != 2 {
+		t.Fatalf("Expected RawArguments array length to be 2, it was %d.", len)
+	} else if parsedcmd.RawArguments[0] != "TestUser" {
+		t.Fatalf("Expected RawArguments[0] to be set to \"TestUser\", it was "+
+			"\"%s\".", parsedcmd.RawArguments[0])
+	} else if parsedcmd.RawArguments[1] != "This is a message. Boo!" {
+		t.Fatalf("Expected RawArguments[1] to be set to \"This is a message. "+
+			"Boo!\", it was \"%s\".", parsedcmd.RawArguments[1])
+	} else if parsedcmd.Data != nil {
+		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
+	}
+}
 
 // ----------------------------------------------------------------------------
 // PARSE USER MASK TESTS ------------------------------------------------------
