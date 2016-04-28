@@ -45,3 +45,28 @@ func TestParseRawValid1(t *testing.T) {
 		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
 	}
 }
+
+func TestParseUserMaskValidUser1(t *testing.T) {
+	unparsedmask := "TestUser!test@user.client.test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	if err != nil {
+		t.Fatalf("ParseUserMask failed with error '%s'", err)
+	}
+
+	if parsedmask.Type != "User" {
+		t.Fatalf("Expected Type field to be \"User\", got \"%s\".",
+			parsedmask.Type)
+	} else if parsedmask.Nick != "TestUser" {
+		t.Fatalf("Expected Nick field to be \"TestUser\", got \"%s\".",
+			parsedmask.Nick)
+	} else if parsedmask.Username != "test" {
+		t.Fatalf("Expected Username field to be \"test\", got \"%s\".",
+			parsedmask.Username)
+	} else if parsedmask.Host != "user.client.test" {
+		t.Fatalf("Expected Host field to be \"user.client.test\", got \"%s\".",
+			parsedmask.Host)
+	}
+}
