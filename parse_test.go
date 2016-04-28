@@ -441,3 +441,25 @@ func TestParseUserMaskInvalid1(t *testing.T) {
 			"seperators, got \"%s\"", err)
 	}
 }
+func TestParseUserMaskInvalid2(t *testing.T) {
+	unparsedmask := "te.st!x@client.test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned error is: %+v", err)
+	if err == nil {
+		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	}
+
+	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
+		"" || parsedmask.Host != "" {
+		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
+			"error.")
+	}
+
+	if err.Error() != "Nickname contains dots, which isn't permitted." {
+		t.Fatalf("Expected error to be \"Nickname contains dots, which isn't "+
+			"permitted.\", got \"%s\"", err)
+	}
+}
