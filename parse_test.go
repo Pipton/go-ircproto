@@ -16,6 +16,7 @@ func TestParseRawValid1(t *testing.T) {
 	var err error
 
 	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned structure is: %+v", parsedcmd)
 	if err != nil {
 		t.Fatalf("ParseRaw failed with error '%s'", err)
 	}
@@ -52,6 +53,7 @@ func TestParseUserMaskValidUser1(t *testing.T) {
 	var err error
 
 	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned structure is: %+v", parsedmask)
 	if err != nil {
 		t.Fatalf("ParseUserMask failed with error '%s'", err)
 	}
