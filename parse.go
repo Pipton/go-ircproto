@@ -65,7 +65,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	} else {
 		for i, v := range cmd[prefixEnd:] {
 			if v == ' ' {
-				cmdTypeEnd = i
+				cmdTypeEnd = i + prefixEnd
 				break
 			} else if (v < 65 || v > 122) && !(v > 90 && v < 97) {
 				return IrcCommand{}, fmt.Errorf("Command type contains invalid" +
