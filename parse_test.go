@@ -344,3 +344,28 @@ func TestParseUserMaskValidUser1(t *testing.T) {
 			parsedmask.Host)
 	}
 }
+func TestParseUserMaskValidUser2(t *testing.T) {
+	unparsedmask := "TestUser@user.client.test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned structure is: %+v", parsedmask)
+	if err != nil {
+		t.Fatalf("ParseUserMask failed with error '%s'", err)
+	}
+
+	if parsedmask.Type != "User" {
+		t.Fatalf("Expected Type field to be \"User\", got \"%s\".",
+			parsedmask.Type)
+	} else if parsedmask.Nick != "TestUser" {
+		t.Fatalf("Expected Nick field to be \"TestUser\", got \"%s\".",
+			parsedmask.Nick)
+	} else if parsedmask.Username != "" {
+		t.Fatalf("Expected Username field to be empty, got \"%s\".",
+			parsedmask.Username)
+	} else if parsedmask.Host != "user.client.test" {
+		t.Fatalf("Expected Host field to be \"user.client.test\", got \"%s\".",
+			parsedmask.Host)
+	}
+}
