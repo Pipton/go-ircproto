@@ -394,3 +394,28 @@ func TestParseUserMaskValidServer1(t *testing.T) {
 			parsedmask.Host)
 	}
 }
+func TestParseUserMaskValidAmbigiousMask1(t *testing.T) {
+	unparsedmask := "test"
+	var parsedmask IrcUserMask
+	var err error
+
+	parsedmask, err = ParseUserMask(unparsedmask)
+	t.Logf("Returned structure is: %+v", parsedmask)
+	if err != nil {
+		t.Fatalf("ParseUserMask failed with error '%s'", err)
+	}
+
+	if parsedmask.Type != "Unknown" {
+		t.Fatalf("Expected Type field to be \"Unknown\", got \"%s\".",
+			parsedmask.Type)
+	} else if parsedmask.Nick != "test" {
+		t.Fatalf("Expected Nick field to be \"test\", got \"%s\".",
+			parsedmask.Nick)
+	} else if parsedmask.Username != "" {
+		t.Fatalf("Expected Username field to be empty, got \"%s\".",
+			parsedmask.Username)
+	} else if parsedmask.Host != "test" {
+		t.Fatalf("Expected Host field to be \"test\", got \"%s\".",
+			parsedmask.Host)
+	}
+}
