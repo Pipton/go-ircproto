@@ -80,21 +80,23 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	argEnd := 0
 	argCount := 0
 	for i, v := range cmd[cmdTypeEnd+1:] {
-		if argCount == 14 {
+		if v == ':' {
+			argEnd = cmdlen-2
+			arguments = append(arguments, cmd[argStart+1:argEnd])
 			break
-		} else if v == ':' {
-			argEnd = cmdlen
-			arguments = append(arguments, cmd[argStart+2:cmdlen-2])
+		} else if v == '\r' {
+			argEnd = i + cmdTypeEnd + 1
+			arguments = append(arguments, cmd[argStart:argEnd])
+			break
+		} else if argCount == 14 {
+			argEnd = cmdlen-2
+			arguments = append(arguments, cmd[argStart:argEnd])
 			break
 		} else if v == ' ' {
 			argEnd = i + cmdTypeEnd + 1
 			arguments = append(arguments, cmd[argStart:argEnd])
 			argCount++
-			argStart = argEnd
-		} else if v == '\r' {
-			argEnd = i + cmdTypeEnd + 1
-			arguments = append(arguments, cmd[argStart:argEnd])
-			break
+			argStart = argEnd + 1
 		}
 	}
 	parsedcmd.RawArguments = arguments
