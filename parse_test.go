@@ -9,6 +9,10 @@ package ircproto
 
 import "testing"
 
+// ----------------------------------------------------------------------------
+// PARSE RAW TESTS ------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 func TestParseRawValid1(t *testing.T) {
 	unparsedcmd := ":server.test 001 TestUser :Welcome to the TestNet IRC " +
 		"Network TestUser!test@user.client.test\r\n"
@@ -46,6 +50,44 @@ func TestParseRawValid1(t *testing.T) {
 		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
 	}
 }
+func TestParseRawValid2(t *testing.T) {
+	unparsedcmd := ":server.test NOTICE TestUser :This is a notice. Boo!\r\n"
+	var parsedcmd IrcCommand
+	var err error
+
+	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned structure is: %+v", parsedcmd)
+	if err != nil {
+		t.Fatalf("ParseRaw failed with error '%s'", err)
+	}
+
+	if parsedcmd.Source.Type != "Server" || parsedcmd.Source.Host !=
+		"server.test" {
+		t.Fatalf("Source has type \"%s\" and host \"%s\", expected type "+
+			"\"Server\" and host \"server.test\".", parsedcmd.Source.Type,
+			parsedcmd.Source.Host)
+	} else if parsedcmd.RawType != "NOTICE" {
+		t.Fatalf("Expected RawType to be \"NOTICE\", got \"%s\".",
+			parsedcmd.RawType)
+	} else if parsedcmd.Type != "" {
+		t.Fatalf("Expected Type to be unset, it was set to \"%s\"",
+			parsedcmd.Type)
+	} else if len := len(parsedcmd.RawArguments); len != 2 {
+		t.Fatalf("Expected RawArguments array length to be 2, it was %d.", len)
+	} else if parsedcmd.RawArguments[0] != "TestUser" {
+		t.Fatalf("Expected RawArguments[0] to be set to \"TestUser\", it was "+
+			"\"%s\".", parsedcmd.RawArguments[0])
+	} else if parsedcmd.RawArguments[1] != "This is a notice. Boo!" {
+		t.Fatalf("Expected RawArguments[1] to be set to \"This is a notice. "+
+			"Boo!\", it was \"%s\".", parsedcmd.RawArguments[1])
+	} else if parsedcmd.Data != nil {
+		t.Fatalf("Expected Data to be nil, it was \"%+v\".", parsedcmd.Data)
+	}
+}
+
+// ----------------------------------------------------------------------------
+// PARSE USER MASK TESTS ------------------------------------------------------
+// ----------------------------------------------------------------------------
 
 func TestParseUserMaskValidUser1(t *testing.T) {
 	unparsedmask := "TestUser!test@user.client.test"
