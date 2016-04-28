@@ -36,9 +36,9 @@ func TestParseRawValid1(t *testing.T) {
 	} else if parsedcmd.RawArguments[0] != "TestUser" {
 		t.Fatalf("Expected RawArguments[0] to be set to \"TestUser\", it was "+
 			"\"%s\".", parsedcmd.RawArguments[0])
-	} else if parsedcmd.RawArguments[1] != "Welcome to the TestNet IRC " +
+	} else if parsedcmd.RawArguments[1] != "Welcome to the TestNet IRC "+
 		"Network TestUser!test@user.client.test" {
-		t.Fatalf("Expected RawArguments[1] to be set to \"Welcome to the " +
+		t.Fatalf("Expected RawArguments[1] to be set to \"Welcome to the "+
 			"TestNet IRC Network TestUser!test@user.client.test\", it was "+
 			"\"%s\".", parsedcmd.RawArguments[1])
 	} else if parsedcmd.Data != nil {
