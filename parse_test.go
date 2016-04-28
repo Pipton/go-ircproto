@@ -230,7 +230,27 @@ func TestParseRawValid6(t *testing.T) {
 			"\"%s\".", parsedcmd.RawArguments[0])
 	}
 }
+func TestParseRawInvalid1(t *testing.T) {
+	unparsedcmd := ":x!x!foo@test PRIVMSG TestUser :Hello\r\n"
+	var parsedcmd IrcCommand
+	var err error
 
+	parsedcmd, err = ParseRaw(unparsedcmd)
+	t.Logf("Returned error is: %s", err)
+	if err == nil {
+		t.Fatalf("ParseRaw should have failed with error, but didn't.")
+	}
+
+	if parsedcmd.Data != nil || parsedcmd.RawType != "" ||
+		parsedcmd.Type != "" || len(parsedcmd.RawArguments) != 0 {
+		t.Fatalf("ParseRaw returned a non-empty IrcCommand after an error.")
+	}
+
+	if err.Error() != "User mask has multiple nick/user seperators." {
+		t.Fatalf("Expected err to be \"User mask has multiple nick/user "+
+			"seperators.\", it was \"%+v\".", err)
+	}
+}
 
 // ----------------------------------------------------------------------------
 // PARSE USER MASK TESTS ------------------------------------------------------
