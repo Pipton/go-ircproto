@@ -269,6 +269,27 @@ func testGoodParseUserMask(testMask, expectedType, expectedNick, expectedUser,
 
 	return parsedMask, nil
 }
+func testBadParseUserMask(testMask string, expectedErrorMsg string) (error,
+	error) {
+	var parsedMask IrcUserMask
+	var err error
+	parsedMask, err = ParseUserMask(testMask)
+
+	if !reflect.DeepEqual(parsedMask, IrcUserMask{}) {
+		return err, fmt.Errorf("ParseUserMask returned a non-empty "+
+			"IrcUserMask object, which wasn't expected. The returned object "+
+			"is: %+v", parsedMask)
+	} else if err == nil {
+		return err, fmt.Errorf("ParseUserMask returned an empty error, which "+
+			"wasn't expected.")
+	} else if err.Error() != expectedErrorMsg {
+		return err, fmt.Errorf("ParseUserMask returned an unexpected error "+
+			"of '%s'. We were expecting an error of '%s'.", err.Error(),
+			expectedErrorMsg)
+	}
+
+	return err, nil
+}
 
 func TestParseUserMaskValidUser1(t *testing.T) {
 	parsedMask, err := testGoodParseUserMask("TestUser!test@user.client.test",
@@ -307,114 +328,49 @@ func TestParseUserMaskValidAmbigiousMask1(t *testing.T) {
 	t.Logf("Returned structure is: %+v", parsedMask)
 }
 func TestParseUserMaskInvalid1(t *testing.T) {
-	unparsedmask := "test!x!x@client.test"
-	var parsedmask IrcUserMask
-	var err error
+	pumErr, testErr := testBadParseUserMask("test!x!x@client.test",
+		"User mask has multiple nick/user seperators.")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned error is: %+v", err)
-	if err == nil {
-		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
-		"" || parsedmask.Host != "" {
-		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
-			"error.")
-	}
-
-	if err.Error() != "User mask has multiple nick/user seperators." {
-		t.Fatalf("Expected error to be \"User mask has multiple nick/user "+
-			"seperators, got \"%s\"", err)
-	}
+	t.Logf("Returned error is: %+v", pumErr)
 }
 func TestParseUserMaskInvalid2(t *testing.T) {
-	unparsedmask := "te.st!x@client.test"
-	var parsedmask IrcUserMask
-	var err error
+	pumErr, testErr := testBadParseUserMask("te.st!x@client.test",
+		"Nickname contains dots, which isn't permitted.")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned error is: %+v", err)
-	if err == nil {
-		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
-		"" || parsedmask.Host != "" {
-		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
-			"error.")
-	}
-
-	if err.Error() != "Nickname contains dots, which isn't permitted." {
-		t.Fatalf("Expected error to be \"Nickname contains dots, which isn't "+
-			"permitted.\", got \"%s\"", err)
-	}
+	t.Logf("Returned error is: %+v", pumErr)
 }
 func TestParseUserMaskInvalid3(t *testing.T) {
-	unparsedmask := "test!x@client@client.test"
-	var parsedmask IrcUserMask
-	var err error
+	pumErr, testErr := testBadParseUserMask("test!x@client@client.test",
+		"User mask has multiple host seperators.")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned error is: %+v", err)
-	if err == nil {
-		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
-		"" || parsedmask.Host != "" {
-		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
-			"error.")
-	}
-
-	if err.Error() != "User mask has multiple host seperators." {
-		t.Fatalf("Expected error to be \"User mask has multiple host "+
-			"seperators.\", got \"%s\"", err)
-	}
+	t.Logf("Returned error is: %+v", pumErr)
 }
 func TestParseUserMaskInvalid4(t *testing.T) {
-	unparsedmask := "test!x.boo@client.test"
-	var parsedmask IrcUserMask
-	var err error
+	pumErr, testErr := testBadParseUserMask("test!x.boo@client.test",
+		"Username contains dots, which isn't permitted.")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned error is: %+v", err)
-	if err == nil {
-		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
-		"" || parsedmask.Host != "" {
-		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
-			"error.")
-	}
-
-	if err.Error() != "Username contains dots, which isn't permitted." {
-		t.Fatalf("Expected error to be \"Username contains dots, which isn't "+
-			"permitted.\", got \"%s\"", err)
-	}
+	t.Logf("Returned error is: %+v", pumErr)
 }
 func TestParseUserMaskInvalid5(t *testing.T) {
-	unparsedmask := "test!x boo@client.test"
-	var parsedmask IrcUserMask
-	var err error
+	pumErr, testErr := testBadParseUserMask("test!x boo@client.test",
+		"User mask contains reserved characters.")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned error is: %+v", err)
-	if err == nil {
-		t.Fatalf("ParseUserMask should have failed an with error '%s'", err)
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedmask.Type != "" || parsedmask.Nick != "" || parsedmask.Username !=
-		"" || parsedmask.Host != "" {
-		t.Fatalf("ParseUserMark returned a non-empty IrcUserMask after an " +
-			"error.")
-	}
-
-	if err.Error() != "User mask contains reserved characters." {
-		t.Fatalf("Expected error to be \"User mask contains reserved "+
-			"characters.\", got \"%s\"", err)
-	}
+	t.Logf("Returned error is: %+v", pumErr)
 }
 
 // ----------------------------------------------------------------------------
