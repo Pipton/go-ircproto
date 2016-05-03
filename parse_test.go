@@ -235,105 +235,76 @@ func BenchmarkParseRawPing(b *testing.B) {
 // PARSE USER MASK TESTS ------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-func TestParseUserMaskValidUser1(t *testing.T) {
-	unparsedmask := "TestUser!test@user.client.test"
-	var parsedmask IrcUserMask
+func testGoodParseUserMask(testMask, expectedType, expectedNick, expectedUser,
+	expectedHost string) (IrcUserMask, error){
+	// Parse the test mask
+	var parsedMask IrcUserMask
 	var err error
+	parsedMask, err = ParseUserMask(testMask)
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned structure is: %+v", parsedmask)
+	// Check for unexpected error
 	if err != nil {
-		t.Fatalf("ParseUserMask failed with error '%s'", err)
+		return parsedMask, fmt.Errorf("ParseUserMask failed unexpected with "+
+			"error: %s", err.Error())
 	}
 
-	if parsedmask.Type != "User" {
-		t.Fatalf("Expected Type field to be \"User\", got \"%s\".",
-			parsedmask.Type)
-	} else if parsedmask.Nick != "TestUser" {
-		t.Fatalf("Expected Nick field to be \"TestUser\", got \"%s\".",
-			parsedmask.Nick)
-	} else if parsedmask.Username != "test" {
-		t.Fatalf("Expected Username field to be \"test\", got \"%s\".",
-			parsedmask.Username)
-	} else if parsedmask.Host != "user.client.test" {
-		t.Fatalf("Expected Host field to be \"user.client.test\", got \"%s\".",
-			parsedmask.Host)
+	// Check if we got expected values
+	if parsedMask.Type != expectedType {
+		return parsedMask, fmt.Errorf("ParseUserMask returned unexpected type "+
+			"value of '%s'. We were expecting '%s'.", parsedMask.Type,
+			expectedType)
+	} else if parsedMask.Nick != expectedNick {
+		return parsedMask, fmt.Errorf("ParseUserMask returned unexpected nick "+
+			"value of '%s'. We were expecting '%s'.", parsedMask.Nick,
+			expectedNick)
+	} else if parsedMask.Username != expectedUser {
+		return parsedMask, fmt.Errorf("ParseUserMask returned unexpected user "+
+			"value of '%s'. We were expecting '%s'.", parsedMask.Username,
+			expectedUser)
+	} else if parsedMask.Host != expectedHost {
+		return parsedMask, fmt.Errorf("ParseUserMask returned unexpected host "+
+			"value of '%s'. We were expecting '%s'.", parsedMask.Host,
+			expectedHost)
 	}
+
+	return parsedMask, nil
+}
+
+func TestParseUserMaskValidUser1(t *testing.T) {
+	parsedMask, err := testGoodParseUserMask("TestUser!test@user.client.test",
+		"User", "TestUser", "test", "user.client.test")
+
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("Returned structure is: %+v", parsedMask)
 }
 func TestParseUserMaskValidUser2(t *testing.T) {
-	unparsedmask := "TestUser@user.client.test"
-	var parsedmask IrcUserMask
-	var err error
+	parsedMask, err := testGoodParseUserMask("TestUser@user.client.test",
+		"User", "TestUser", "", "user.client.test")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned structure is: %+v", parsedmask)
 	if err != nil {
-		t.Fatalf("ParseUserMask failed with error '%s'", err)
+		t.Error(err)
 	}
-
-	if parsedmask.Type != "User" {
-		t.Fatalf("Expected Type field to be \"User\", got \"%s\".",
-			parsedmask.Type)
-	} else if parsedmask.Nick != "TestUser" {
-		t.Fatalf("Expected Nick field to be \"TestUser\", got \"%s\".",
-			parsedmask.Nick)
-	} else if parsedmask.Username != "" {
-		t.Fatalf("Expected Username field to be empty, got \"%s\".",
-			parsedmask.Username)
-	} else if parsedmask.Host != "user.client.test" {
-		t.Fatalf("Expected Host field to be \"user.client.test\", got \"%s\".",
-			parsedmask.Host)
-	}
+	t.Logf("Returned structure is: %+v", parsedMask)
 }
 func TestParseUserMaskValidServer1(t *testing.T) {
-	unparsedmask := "server.test"
-	var parsedmask IrcUserMask
-	var err error
+	parsedMask, err := testGoodParseUserMask("server.test",
+		"Server", "", "", "server.test")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned structure is: %+v", parsedmask)
 	if err != nil {
-		t.Fatalf("ParseUserMask failed with error '%s'", err)
+		t.Error(err)
 	}
-
-	if parsedmask.Type != "Server" {
-		t.Fatalf("Expected Type field to be \"Server\", got \"%s\".",
-			parsedmask.Type)
-	} else if parsedmask.Nick != "" {
-		t.Fatalf("Expected Nick field to be empty, got \"%s\".",
-			parsedmask.Nick)
-	} else if parsedmask.Username != "" {
-		t.Fatalf("Expected Username field to be empty, got \"%s\".",
-			parsedmask.Username)
-	} else if parsedmask.Host != "server.test" {
-		t.Fatalf("Expected Host field to be \"server.test\", got \"%s\".",
-			parsedmask.Host)
-	}
+	t.Logf("Returned structure is: %+v", parsedMask)
 }
 func TestParseUserMaskValidAmbigiousMask1(t *testing.T) {
-	unparsedmask := "test"
-	var parsedmask IrcUserMask
-	var err error
+	parsedMask, err := testGoodParseUserMask("test",
+		"Unknown", "test", "", "test")
 
-	parsedmask, err = ParseUserMask(unparsedmask)
-	t.Logf("Returned structure is: %+v", parsedmask)
 	if err != nil {
-		t.Fatalf("ParseUserMask failed with error '%s'", err)
+		t.Error(err)
 	}
-
-	if parsedmask.Type != "Unknown" {
-		t.Fatalf("Expected Type field to be \"Unknown\", got \"%s\".",
-			parsedmask.Type)
-	} else if parsedmask.Nick != "test" {
-		t.Fatalf("Expected Nick field to be \"test\", got \"%s\".",
-			parsedmask.Nick)
-	} else if parsedmask.Username != "" {
-		t.Fatalf("Expected Username field to be empty, got \"%s\".",
-			parsedmask.Username)
-	} else if parsedmask.Host != "test" {
-		t.Fatalf("Expected Host field to be \"test\", got \"%s\".",
-			parsedmask.Host)
-	}
+	t.Logf("Returned structure is: %+v", parsedMask)
 }
 func TestParseUserMaskInvalid1(t *testing.T) {
 	unparsedmask := "test!x!x@client.test"
