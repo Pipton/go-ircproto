@@ -66,6 +66,26 @@ func testGoodParseRaw(testCmd string, expectedSource IrcUserMask,
 
 	return parsedCmd, nil
 }
+func testBadParseRaw(testCmd string, expectedErrorMsg string) (error, error) {
+	var parsedCmd IrcCommand
+	var err error
+	parsedCmd, err = ParseRaw(testCmd)
+
+	if !reflect.DeepEqual(parsedCmd, IrcCommand{}) {
+		return err, fmt.Errorf("ParseRaw returned a non-empty IrcCommand "+
+			"object, which wasn't expected. The returned object is: %+v",
+			parsedCmd)
+	} else if err == nil {
+		return err, fmt.Errorf("ParseRaw returned an empty error, which "+
+			"wasn't expected.")
+	} else if err.Error() != expectedErrorMsg {
+		return err, fmt.Errorf("ParseRaw returned an unexpected error of '%s'."+
+			" We were expecting an error of '%s'.", err.Error(),
+			expectedErrorMsg)
+	}
+
+	return err, nil
+}
 
 func TestParseRawValid1(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw(":server.test 001 TestUser :Welcome "+
@@ -134,88 +154,40 @@ func TestParseRawValid6(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawInvalid1(t *testing.T) {
-	unparsedcmd := ":x!x!foo@test PRIVMSG TestUser :Hello\r\n"
-	var parsedcmd IrcCommand
-	var err error
+	prErr, testErr := testBadParseRaw(":x!x!foo@test PRIVMSG TestUser "+
+		":Hello\r\n", "User mask has multiple nick/user seperators.")
 
-	parsedcmd, err = ParseRaw(unparsedcmd)
-	t.Logf("Returned error is: %s", err)
-	if err == nil {
-		t.Fatalf("ParseRaw should have failed with error, but didn't.")
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedcmd.Data != nil || parsedcmd.RawType != "" ||
-		parsedcmd.Type != "" || len(parsedcmd.RawArguments) != 0 {
-		t.Fatalf("ParseRaw returned a non-empty IrcCommand after an error.")
-	}
-
-	if err.Error() != "User mask has multiple nick/user seperators." {
-		t.Fatalf("Expected err to be \"User mask has multiple nick/user "+
-			"seperators.\", it was \"%+v\".", err)
-	}
+	t.Logf("ParseRaw returned error: %+v", prErr)
 }
 func TestParseRawInvalid2(t *testing.T) {
-	unparsedcmd := ":server.test 0a0 TestUser :Hello\r\n"
-	var parsedcmd IrcCommand
-	var err error
+	prErr, testErr := testBadParseRaw(":server.test 0a0 TestUser :Hello\r\n",
+		"Command type is not a valid numeric.")
 
-	parsedcmd, err = ParseRaw(unparsedcmd)
-	t.Logf("Returned error is: %s", err)
-	if err == nil {
-		t.Fatalf("ParseRaw should have failed with error, but didn't.")
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedcmd.Data != nil || parsedcmd.RawType != "" ||
-		parsedcmd.Type != "" || len(parsedcmd.RawArguments) != 0 {
-		t.Fatalf("ParseRaw returned a non-empty IrcCommand after an error.")
-	}
-
-	if err.Error() != "Command type is not a valid numeric." {
-		t.Fatalf("Expected err to be \"Command type is not a valid numeric.\","+
-			" it was \"%+v\".", err)
-	}
+	t.Logf("ParseRaw returned error: %+v", prErr)
 }
 func TestParseRawInvalid3(t *testing.T) {
-	unparsedcmd := ":server.test M30W TestUser :Hello\r\n"
-	var parsedcmd IrcCommand
-	var err error
+	prErr, testErr := testBadParseRaw(":server.test M30W TestUser :Hello\r\n",
+		"Command type contains invalid characters.")
 
-	parsedcmd, err = ParseRaw(unparsedcmd)
-	t.Logf("Returned error is: %s", err)
-	if err == nil {
-		t.Fatalf("ParseRaw should have failed with error, but didn't.")
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedcmd.Data != nil || parsedcmd.RawType != "" ||
-		parsedcmd.Type != "" || len(parsedcmd.RawArguments) != 0 {
-		t.Fatalf("ParseRaw returned a non-empty IrcCommand after an error.")
-	}
-
-	if err.Error() != "Command type contains invalid characters." {
-		t.Fatalf("Expected err to be \"Command type contains invalid "+
-			"characters.\", it was \"%+v\".", err)
-	}
+	t.Logf("ParseRaw returned error: %+v", prErr)
 }
 func TestParseRawInvalid4(t *testing.T) {
-	unparsedcmd := ":server.test 001 TestUser :Hello"
-	var parsedcmd IrcCommand
-	var err error
+	prErr, testErr := testBadParseRaw(":server.test 001 TestUser :Hello",
+		"Command does not end with CRLF.")
 
-	parsedcmd, err = ParseRaw(unparsedcmd)
-	t.Logf("Returned error is: %s", err)
-	if err == nil {
-		t.Fatalf("ParseRaw should have failed with error, but didn't.")
+	if testErr != nil {
+		t.Error(testErr)
 	}
-
-	if parsedcmd.Data != nil || parsedcmd.RawType != "" ||
-		parsedcmd.Type != "" || len(parsedcmd.RawArguments) != 0 {
-		t.Fatalf("ParseRaw returned a non-empty IrcCommand after an error.")
-	}
-
-	if err.Error() != "Command does not end with CRLF." {
-		t.Fatalf("Expected err to be \"Command does not end with CRLF.\", "+
-			"it was \"%+v\".", err)
-	}
+	t.Logf("ParseRaw returned error: %+v", prErr)
 }
 
 // ----------------------------------------------------------------------------
