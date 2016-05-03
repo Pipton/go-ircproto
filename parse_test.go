@@ -17,7 +17,7 @@ import (
 // PARSE RAW TESTS ------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-func testRawIrcCommand(testCmd string, expectedSource IrcUserMask,
+func testGoodParseRaw(testCmd string, expectedSource IrcUserMask,
 	expectedRawType string, expectedRawArguments []string) (IrcCommand,
 	error) {
 	// Fetch parsed command
@@ -68,7 +68,7 @@ func testRawIrcCommand(testCmd string, expectedSource IrcUserMask,
 }
 
 func TestParseRawValid1(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand(":server.test 001 TestUser :Welcome "+
+	parsedCmd, err := testGoodParseRaw(":server.test 001 TestUser :Welcome "+
 		"to the TestNet IRC Network TestUser!test@user.client.test\r\n",
 		IrcUserMask{Type: "Server", Host: "server.test"}, "001",
 		[]string{"TestUser", "Welcome to the TestNet IRC Network " +
@@ -80,7 +80,7 @@ func TestParseRawValid1(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawValid2(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand(":server.test NOTICE TestUser :This "+
+	parsedCmd, err := testGoodParseRaw(":server.test NOTICE TestUser :This "+
 		"is a notice. Boo!\r\n", IrcUserMask{Type: "Server",
 		Host: "server.test"}, "NOTICE", []string{"TestUser", "This is a " +
 		"notice. Boo!"})
@@ -91,7 +91,7 @@ func TestParseRawValid2(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawValid3(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand(":OtherUser!foo@second.client.test "+
+	parsedCmd, err := testGoodParseRaw(":OtherUser!foo@second.client.test "+
 		"PRIVMSG TestUser :This is a message. Boo!\r\n",
 		IrcUserMask{Type: "User", Nick: "OtherUser", Username: "foo",
 		Host: "second.client.test"}, "PRIVMSG", []string{"TestUser", "This is "+
@@ -103,7 +103,7 @@ func TestParseRawValid3(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawValid4(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand(":server.test 005 TestUser CAP1 CAP2 "+
+	parsedCmd, err := testGoodParseRaw(":server.test 005 TestUser CAP1 CAP2 "+
 		"CAP3 CAP4 CAP5 CAP6 CAP7 CAP8 CAP9 CAP10 CAP11 CAP12 CAP13 are "+
 		"supported by this server\r\n", IrcUserMask{Type: "Server",
 		Host: "server.test"}, "005", []string{"TestUser", "CAP1", "CAP2",
@@ -116,7 +116,7 @@ func TestParseRawValid4(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawValid5(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand("PING :BOOP\r\n",
+	parsedCmd, err := testGoodParseRaw("PING :BOOP\r\n",
 		IrcUserMask{Type: "None"}, "PING", []string{"BOOP"})
 
 	if err != nil {
@@ -125,7 +125,7 @@ func TestParseRawValid5(t *testing.T) {
 	t.Logf("ParseRaw returned structure: %+v", parsedCmd)
 }
 func TestParseRawValid6(t *testing.T) {
-	parsedCmd, err := testRawIrcCommand("TEST BOOP\r\n",
+	parsedCmd, err := testGoodParseRaw("TEST BOOP\r\n",
 		IrcUserMask{Type: "None"}, "TEST", []string{"BOOP"})
 
 	if err != nil {
