@@ -1,7 +1,6 @@
 # ircproto
 
 [![Build Status](https://img.shields.io/travis/AelitaStyles/go-ircproto/master.svg)](https://travis-ci.org/AelitaStyles/go-ircproto)
-[![Test Coverage](https://img.shields.io/coveralls/AelitaStyles/go-ircproto/master.svg)](https://coveralls.io/github/AelitaStyles/go-ircproto?branch=master)
 [![Current Version](https://img.shields.io/github/release/AelitaStyles/go-ircproto.svg)](https://github.com/AelitaStyles/go-ircproto/releases)
 [![License](https://img.shields.io/github/license/aelitastyles/go-ircproto.svg)](https://github.com/AelitaStyles/go-ircproto/blob/master/LICENSE.md)
 
