@@ -319,35 +319,35 @@ func TestParseRawInvalid4(t *testing.T) {
 // PARSE RAW BENCHMARKS -------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-func BenchmarkParseRawNumeric(b *testing.B){
+func BenchmarkParseRawNumeric(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ParseRaw(":server.test 001 TestUser :Welcome to the "+
+		_, err := ParseRaw(":server.test 001 TestUser :Welcome to the " +
 			"TestNet IRC Network TestUser!test@user.client.test\r\n")
 		if err != nil {
 			b.FailNow()
 		}
 	}
 }
-func BenchmarkParseRawPrivmsg(b *testing.B){
+func BenchmarkParseRawPrivmsg(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ParseRaw(":OtherUser!foo@second.client.test PRIVMSG TestUser"+
+		_, err := ParseRaw(":OtherUser!foo@second.client.test PRIVMSG TestUser" +
 			" :This is a message. Boo!\r\n")
 		if err != nil {
 			b.FailNow()
 		}
 	}
 }
-func BenchmarkParseRawCaps(b *testing.B){
+func BenchmarkParseRawCaps(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ParseRaw(":server.test 005 TestUser CAP1 CAP2 CAP3 CAP4 "+
-			"CAP5 CAP6 CAP7 CAP8 CAP9 CAP10 CAP11 CAP12 CAP13 are "+
+		_, err := ParseRaw(":server.test 005 TestUser CAP1 CAP2 CAP3 CAP4 " +
+			"CAP5 CAP6 CAP7 CAP8 CAP9 CAP10 CAP11 CAP12 CAP13 are " +
 			"supported by this server\r\n")
 		if err != nil {
 			b.FailNow()
 		}
 	}
 }
-func BenchmarkParseRawPing(b *testing.B){
+func BenchmarkParseRawPing(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := ParseRaw("PING :BOOP\r\n")
 		if err != nil {
@@ -575,7 +575,7 @@ func TestParseUserMaskInvalid5(t *testing.T) {
 // PARSE USER MASK BENCHMARKS -------------------------------------------------
 // ----------------------------------------------------------------------------
 
-func BenchmarkParseUserMaskUserLong(b *testing.B){
+func BenchmarkParseUserMaskUserLong(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := ParseUserMask("TestUser!test@user.client.test")
 		if err != nil {
@@ -583,7 +583,7 @@ func BenchmarkParseUserMaskUserLong(b *testing.B){
 		}
 	}
 }
-func BenchmarkParseUserMaskUserShort(b *testing.B){
+func BenchmarkParseUserMaskUserShort(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := ParseUserMask("TestUser@user.client.test")
 		if err != nil {
@@ -591,7 +591,7 @@ func BenchmarkParseUserMaskUserShort(b *testing.B){
 		}
 	}
 }
-func BenchmarkParseUserMaskServer(b *testing.B){
+func BenchmarkParseUserMaskServer(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := ParseUserMask("server.test")
 		if err != nil {
@@ -599,7 +599,7 @@ func BenchmarkParseUserMaskServer(b *testing.B){
 		}
 	}
 }
-func BenchmarkParseUserMaskAmbigious(b *testing.B){
+func BenchmarkParseUserMaskAmbigious(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := ParseUserMask("test")
 		if err != nil {
