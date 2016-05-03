@@ -3,10 +3,9 @@ go:
 - 1.4.2
 - 1.6.2
 before_install:
-- go get github.com/mattn/goveralls
 - go get golang.org/x/tools/cmd/cover
 script:
-- $HOME/gopath/bin/goveralls -v -service=travis-ci
+- go test -cover -v
 env:
   global:
     secure: EJbeaSjkrITApF99cjVMnaLx2zDntGKLYCGFO7SCD08zSjs9+PiMZbx1wc3/ptj4CE3OeRu09iyFnyQ+m604Wfr5tU3TdPUOtYPpeW2UXHBs19zsZbur/Z2n2bmpRtJCLdIghEi6KCC3+NqzWvCGR7PGXZ0upR01V/BD7vJiUFxjFVthV1qZAY/FtfGWzuaj/+YU41eBqEavAh4KaF3CecFMhgg8z/xR292rLLS0h+oJHGaQnzyq4zDu/CSmSbutmDEhtlNKA59LgfE16WTC6JjgIXcA8h0VDOW3vYkMohzwPUQPPAU4yULYoEjtdmlhTwkxvqQiVNY5JnY3XUGhvF270WyiD9cza/12+zBdHesM3F3PgBwXxTq1pdlyzOeY57IHAcVjbGGX+JXPx+mMQh/lipWb++nnaZFjRBUQ7gWtIi4d083InG77+/+z9da5Ui3K+ocaqjvU2lfMQWQZnZleYtbIoAt0YqF4aG9LdpJoyKbT3wIAkS1qCBODLRnbrRUULUhjEOi46cQbUEpdqyBJozc6nblgRUUzWKkVc0f82pfUE8s6iv6BIc/JUGd5JFpn/KkUK909wX+1y3PgV+6Ode0xU97LyJmbWvswgEMm0H4qf8thW2vf+pvVa1tkCWjagMckrYZSTyfLsa+70C1xnvjrCPp8l3iz9RjEojk=
