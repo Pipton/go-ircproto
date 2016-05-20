@@ -48,7 +48,7 @@ func testGoodParseRaw(testCmd string, expectedSource IrcUserMask,
 		return parsedCmd, fmt.Errorf("ParseRaw returned an unexpected number "+
 			"of arguments. We were expecting 15 or less, but got %d.",
 			len(parsedCmd.RawArguments))
-	} else if parsedCmd.Type != "" {
+	} else if parsedCmd.Type != IrcCommandType_Unknown {
 		return parsedCmd, fmt.Errorf("ParseRaw returned an unexpected type of "+
 			"'%s'. We were expecting it to be an empty string.", parsedCmd.Type)
 	} else if parsedCmd.Data != nil {
@@ -90,7 +90,7 @@ func testBadParseRaw(testCmd string, expectedErrorMsg string) (error, error) {
 func TestParseRawValid1(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw(":server.test 001 TestUser :Welcome "+
 		"to the TestNet IRC Network TestUser!test@user.client.test\r\n",
-		IrcUserMask{Type: "Server", Host: "server.test"}, "001",
+		IrcUserMask{Type: IrcSourceType_Server, Host: "server.test"}, "001",
 		[]string{"TestUser", "Welcome to the TestNet IRC Network " +
 		"TestUser!test@user.client.test"})
 
@@ -101,7 +101,7 @@ func TestParseRawValid1(t *testing.T) {
 }
 func TestParseRawValid2(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw(":server.test NOTICE TestUser :This "+
-		"is a notice. Boo!\r\n", IrcUserMask{Type: "Server",
+		"is a notice. Boo!\r\n", IrcUserMask{Type: IrcSourceType_Server,
 		Host: "server.test"}, "NOTICE", []string{"TestUser", "This is a " +
 		"notice. Boo!"})
 
@@ -113,7 +113,7 @@ func TestParseRawValid2(t *testing.T) {
 func TestParseRawValid3(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw(":OtherUser!foo@second.client.test "+
 		"PRIVMSG TestUser :This is a message. Boo!\r\n",
-		IrcUserMask{Type: "User", Nick: "OtherUser", Username: "foo",
+		IrcUserMask{Type: IrcSourceType_User, Nick: "OtherUser", Username: "foo",
 		Host: "second.client.test"}, "PRIVMSG", []string{"TestUser", "This is "+
 		"a message. Boo!"})
 
@@ -125,7 +125,7 @@ func TestParseRawValid3(t *testing.T) {
 func TestParseRawValid4(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw(":server.test 005 TestUser CAP1 CAP2 "+
 		"CAP3 CAP4 CAP5 CAP6 CAP7 CAP8 CAP9 CAP10 CAP11 CAP12 CAP13 are "+
-		"supported by this server\r\n", IrcUserMask{Type: "Server",
+		"supported by this server\r\n", IrcUserMask{Type: IrcSourceType_Server,
 		Host: "server.test"}, "005", []string{"TestUser", "CAP1", "CAP2",
 		"CAP3", "CAP4", "CAP5", "CAP6", "CAP7", "CAP8", "CAP9", "CAP10",
 		"CAP11", "CAP12", "CAP13", "are supported by this server"})
@@ -137,7 +137,7 @@ func TestParseRawValid4(t *testing.T) {
 }
 func TestParseRawValid5(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw("PING :BOOP\r\n",
-		IrcUserMask{Type: "None"}, "PING", []string{"BOOP"})
+		IrcUserMask{Type: IrcSourceType_Empty}, "PING", []string{"BOOP"})
 
 	if err != nil {
 		t.Error(err)
@@ -146,7 +146,7 @@ func TestParseRawValid5(t *testing.T) {
 }
 func TestParseRawValid6(t *testing.T) {
 	parsedCmd, err := testGoodParseRaw("TEST BOOP\r\n",
-		IrcUserMask{Type: "None"}, "TEST", []string{"BOOP"})
+		IrcUserMask{Type: IrcSourceType_Empty}, "TEST", []string{"BOOP"})
 
 	if err != nil {
 		t.Error(err)
@@ -235,8 +235,8 @@ func BenchmarkParseRawPing(b *testing.B) {
 // PARSE USER MASK TESTS ------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-func testGoodParseUserMask(testMask, expectedType, expectedNick, expectedUser,
-	expectedHost string) (IrcUserMask, error){
+func testGoodParseUserMask(testMask string, expectedType int, expectedNick,
+	expectedUser, expectedHost string) (IrcUserMask, error){
 	// Parse the test mask
 	var parsedMask IrcUserMask
 	var err error
@@ -293,7 +293,7 @@ func testBadParseUserMask(testMask string, expectedErrorMsg string) (error,
 
 func TestParseUserMaskValidUser1(t *testing.T) {
 	parsedMask, err := testGoodParseUserMask("TestUser!test@user.client.test",
-		"User", "TestUser", "test", "user.client.test")
+		IrcSourceType_User, "TestUser", "test", "user.client.test")
 
 	if err != nil {
 		t.Error(err)
@@ -302,7 +302,7 @@ func TestParseUserMaskValidUser1(t *testing.T) {
 }
 func TestParseUserMaskValidUser2(t *testing.T) {
 	parsedMask, err := testGoodParseUserMask("TestUser@user.client.test",
-		"User", "TestUser", "", "user.client.test")
+		IrcSourceType_User, "TestUser", "", "user.client.test")
 
 	if err != nil {
 		t.Error(err)
@@ -311,7 +311,7 @@ func TestParseUserMaskValidUser2(t *testing.T) {
 }
 func TestParseUserMaskValidServer1(t *testing.T) {
 	parsedMask, err := testGoodParseUserMask("server.test",
-		"Server", "", "", "server.test")
+		IrcSourceType_Server, "", "", "server.test")
 
 	if err != nil {
 		t.Error(err)
@@ -320,7 +320,7 @@ func TestParseUserMaskValidServer1(t *testing.T) {
 }
 func TestParseUserMaskValidAmbigiousMask1(t *testing.T) {
 	parsedMask, err := testGoodParseUserMask("test",
-		"Unknown", "test", "", "test")
+		IrcSourceType_Unknown, "test", "", "test")
 
 	if err != nil {
 		t.Error(err)

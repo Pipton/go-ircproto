@@ -11,20 +11,50 @@ import "fmt"
 
 // The IrcCommand structure represents a single IRC command/message.
 type IrcCommand struct {
-	Source       IrcUserMask // The source of the message (if given)
-	Type         string      // The type of command, if ircproto understood it
-	Data         interface{} // The parsed data, if iroproto understood the command
-	RawType      string      // The command type as given in the command
-	RawArguments []string    // The raw arguments as an array
+	Source       IrcUserMask // The source of the message (if given).
+	Type         int         // The type of command; see the IrcCommandType constants.
+	Data         interface{} // The parsed data, if ircproto understood the command.
+	RawType      string      // The command type as given in the command.
+	RawArguments []string    // The raw arguments as an array.
 }
 
-// The IrcUserMask structure represents a IRC user mask
+// The list of IrcCommandType values
+const (
+	IrcCommandType_Unknown = iota // Used if ircproto doesn't understand the command
+)
+
+// The IrcUserMask structure represents a IRC user mask. If the mask is that
+// of a user, the host and nickname fields should be set, and the username
+// field may be set. If the source is a server, only the host field will be
+// set. If the source can't be determined, both nick and host will be set
+// with the same value.
+//
+// Occasionally ircproto will be unable to determine the source type, in
+// such situations, you must work out the source yourself. If the type
+// field is marked as empty, this means the source is the object you are
+// directly connected to. If the field is marked as unknown, the meaning
+// depends on whether you are a server or client.
+//
+// An unknown source type for a client means the source is either a server,
+// or yourself (or the server acting on your behalf). For servers, it could
+// either be a user or server.
+//
+// If you are using ircproto's state tracking capabilities, this should never
+// be a problem.
 type IrcUserMask struct {
-	Type     string // Whether this is a user, server or neither
-	Nick     string // Nickname of the user (if a user)
-	Username string // Username of the user (if a user)
-	Host     string // Host of the user or server (if given)
+	Type     int    // The type; see the IrcSourceType constants.
+	Nick     string // Nickname of the user.
+	Username string // Username of the user.
+	Host     string // Host of the user or server.
 }
+
+// The list of IrcSourceType values
+const (
+	IrcSourceType_Empty = iota
+	IrcSourceType_Unknown = iota
+	IrcSourceType_User = iota
+	IrcSourceType_Server = iota
+)
 
 // ParseRaw will check the IRC command is valid, split it up and return the
 // contents as an IrcCommand structure, without doing any additional parsing
@@ -34,7 +64,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	prefixEnd := 1
 	cmdTypeEnd := 0
 	var arguments []string
-	var parsedcmd IrcCommand
+	parsedcmd := IrcCommand{Type: IrcCommandType_Unknown}
 
 	// Check if we have a prefix
 	if cmd[:1] == ":" {
@@ -48,12 +78,13 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 		}
 		parsedcmd.Source = parsedprefix
 	} else {
-		parsedcmd.Source = IrcUserMask{Type: "None"}
+		parsedcmd.Source = IrcUserMask{Type: IrcSourceType_Empty}
 		prefixEnd = 0
 	}
 
 	// Parse the command type
 	if cmd[prefixEnd] > 47 && cmd[prefixEnd] < 58 {
+		// Handle numeric types
 		if cmd[prefixEnd+1] > 47 && cmd[prefixEnd+1] < 58 &&
 			cmd[prefixEnd+2] > 47 && cmd[prefixEnd+2] < 58 &&
 			cmd[prefixEnd+3] == ' ' {
@@ -63,6 +94,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 				"numeric.")
 		}
 	} else {
+		// Handle named commands
 		for i, v := range cmd[prefixEnd:] {
 			if v == ' ' {
 				cmdTypeEnd = i + prefixEnd
@@ -109,8 +141,7 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 }
 
 // ParseUserMask will parse a usermask string and return the appropriate
-// IrcUserMask structure. The Type field will be set to either "None",
-// "User", "Server" or "Unknown".
+// IrcUserMask structure.
 func ParseUserMask(mask string) (IrcUserMask, error) {
 	var parsedmask IrcUserMask
 	var usersep int
@@ -145,7 +176,8 @@ func ParseUserMask(mask string) (IrcUserMask, error) {
 
 	// Check if hostsep is set
 	if hostsep != 0 {
-		parsedmask.Type = "User"
+		// Handle usernames
+		parsedmask.Type = IrcSourceType_User
 		parsedmask.Host = mask[hostsep+1 : len(mask)]
 		if usersep != 0 {
 			parsedmask.Username = mask[usersep+1 : hostsep]
@@ -154,10 +186,12 @@ func ParseUserMask(mask string) (IrcUserMask, error) {
 			parsedmask.Nick = mask[:hostsep]
 		}
 	} else if usersep == 0 && hostsep == 0 && dotcount != 0 {
-		parsedmask.Type = "Server"
+		// Handle servers
+		parsedmask.Type = IrcSourceType_Server
 		parsedmask.Host = mask
 	} else if usersep == 0 && hostsep == 0 && dotcount == 0 {
-		parsedmask.Type = "Unknown"
+		// Handle unknowns
+		parsedmask.Type = IrcSourceType_Unknown
 		parsedmask.Host = mask
 		parsedmask.Nick = mask
 	} else {
