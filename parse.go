@@ -7,15 +7,19 @@
 
 package ircproto
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // The IrcCommand structure represents a single IRC command/message.
 type IrcCommand struct {
-	Source       IrcUserMask // The source of the message (if given)
-	Type         string      // The type of command, if ircproto understood it
-	Data         interface{} // The parsed data, if iroproto understood the command
-	RawType      string      // The command type as given in the command
-	RawArguments []string    // The raw arguments as an array
+	Source      	IrcUserMask // The source of the message (if given)
+	Type        	string      // The type of command, if ircproto understood it
+	Data        	interface{} // The parsed data, if iroproto understood the command
+	RawType     	string      // The command type as given in the command
+	RawArguments	[]string    // The raw arguments as an array
+	T							time.Time	 // The time
 }
 
 // The IrcUserMask structure represents a IRC user mask
@@ -35,6 +39,8 @@ func ParseRaw(cmd string) (IrcCommand, error) {
 	cmdTypeEnd := 0
 	var arguments []string
 	var parsedcmd IrcCommand
+
+	parsedcmd.T = time.Now() // Get the local time
 
 	// Check if we have a prefix
 	if cmd[:1] == ":" {
